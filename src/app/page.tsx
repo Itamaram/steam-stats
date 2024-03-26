@@ -2,12 +2,11 @@
 
 import React, { useState } from 'react';
 import { Game } from './api/users/[user]/route';
-import DataTable from 'react-data-table-component';
-import Image from 'next/image';
 import _ from 'lodash';
+import GamesTable from './games-table';
 
 const Page = () => {
-    const [id, setId] = useState<string>('');
+    const [steamid, setSteamId] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [games, setGames] = useState<Game[]>([]);
 
@@ -15,7 +14,7 @@ const Page = () => {
         setGames([]);
         setIsLoading(true);
         try {
-            const response = await fetch(`/api/users/${id}`);
+            const response = await fetch(`/api/users/${steamid}`);
             const data = await response.json();
             setGames(data.games);
         } catch (error) {
@@ -36,8 +35,8 @@ const Page = () => {
                     type="text"
                     className="border border-gray-300 rounded-md px-4 py-2 mr-2 input-field col-start-2"
                     placeholder="Enter your steam id"
-                    value={id}
-                    onChange={(e) => setId(e.target.value)}
+                    value={steamid}
+                    onChange={(e) => setSteamId(e.target.value)}
                 />
                 <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded input-field"
@@ -58,22 +57,7 @@ const Page = () => {
             </div>
 
             <div className="w-full max-w-2xl py-2">
-                {games.length > 0 && (
-                    <DataTable
-                        columns={[
-                            { width: "66px", cell: (game: Game) => <Image data-tag="allowRowEvents" width={32} height={32} src={`http://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img}.jpg`} alt={`${game.name}'s app icon`} /> },
-                            { name: 'Game', selector: (game: Game) => game.name, sortable: true },
-                            { id: 'Playtime', name: 'Playtime (hours)', selector: (game: Game) => game.playtime, format: (g: Game) => (g.playtime / 60).toFixed(0), sortable: true, right: true },
-                        ]}
-                        data={games}
-                        pagination
-                        defaultSortAsc={false}
-                        defaultSortFieldId={'Playtime'}
-                        onRowClicked={(game: Game) => window.open(`https://store.steampowered.com/app/${game.appid}`)}
-                        pointerOnHover
-                        striped
-                    />
-                )}
+                {games.length > 0 && <GamesTable games={games} />}
             </div>
         </main >
     );
